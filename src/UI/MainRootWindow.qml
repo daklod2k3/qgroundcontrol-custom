@@ -126,9 +126,16 @@ ApplicationWindow {
         viewer3DWindow.close()
     }
 
+    function showDetectView() {
+        flyView.visible = false
+        planView.visible = false
+        detectView.visible = true
+    }
+
     function showFlyView() {
         flyView.visible = true
         planView.visible = false
+        detectView.visible = false
     }
 
     function showTool(toolTitle, toolSource, toolIcon) {
@@ -286,6 +293,12 @@ ApplicationWindow {
         visible:        false
     }
 
+    DetectView {
+        id:             detectView
+        anchors.fill:   parent
+        visible:        false
+    }
+
     footer: LogReplayStatusBar {
         visible: QGroundControl.settingsManager.flyViewSettings.showLogReplayStatusBar.rawValue
     }
@@ -356,6 +369,19 @@ ApplicationWindow {
                                 if (mainWindow.allowViewSwitch()) {
                                     mainWindow.closeIndicatorDrawer()
                                     mainWindow.showPlanView()
+                                }
+                            }
+                        }
+
+                        SubMenuButton {
+                            height:             toolSelectDialog._toolButtonHeight
+                            Layout.fillWidth:   true
+                            text:               qsTr("Object Detect")
+                            imageResource:      "/qmlimages/ObjectDetect.svg"
+                            onClicked: {
+                                if (mainWindow.allowViewSwitch()) {
+                                    mainWindow.closeIndicatorDrawer()
+                                    mainWindow.showDetectView()
                                 }
                             }
                         }
