@@ -128,6 +128,7 @@
         <file alias="QGroundControl/Controls/MissionItemEditor.qml">src/PlanView/MissionItemEditor.qml</file>
         <file alias="QGroundControl/Controls/MissionItemIndexLabel.qml">src/QmlControls/MissionItemIndexLabel.qml</file>
         <file alias="QGroundControl/Controls/MissionItemMapVisual.qml">src/PlanView/MissionItemMapVisual.qml</file>
+        <file alias="ObjectItemMapVisual.qml">src/DetectView/ObjectItemMapVisual.qml</file>
         <file alias="QGroundControl/Controls/MissionItemStatus.qml">src/PlanView/MissionItemStatus.qml</file>
         <file alias="QGroundControl/Controls/MvPanelPage.qml">src/QmlControls/MvPanelPage.qml</file>
         <file alias="QGroundControl/Controls/OfflineMapButton.qml">src/QmlControls/OfflineMapButton.qml</file>
@@ -138,6 +139,9 @@
         <file alias="QGroundControl/Controls/ParameterEditorDialog.qml">src/QmlControls/ParameterEditorDialog.qml</file>
         <file alias="QGroundControl/Controls/PIDTuning.qml">src/QmlControls/PIDTuning.qml</file>
         <file alias="QGroundControl/Controls/PlanEditToolbar.qml">src/PlanView/PlanEditToolbar.qml</file>
+        <file alias="QGroundControl/FlightMap/ObjectMapItems.qml">src/FlightMap/MapItems/ObjectMapItems.qml</file>
+        <file alias="QGroundControl/FlightMap/ObjectItem.qml">src/FlightMap/MapItems/ObjectItem.qml</file>
+        <file alias="QGroundControl/FlightMap/ObjectItemIndicator.qml">src/FlightMap/MapItems/ObjectItemIndicator.qml</file>
         <file alias="QGroundControl/Controls/PreFlightCheckButton.qml">src/QmlControls/PreFlightCheckButton.qml</file>
         <file alias="QGroundControl/Controls/PreFlightCheckGroup.qml">src/QmlControls/PreFlightCheckGroup.qml</file>
         <file alias="QGroundControl/Controls/PreFlightCheckModel.qml">src/QmlControls/PreFlightCheckModel.qml</file>

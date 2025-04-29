@@ -27,6 +27,7 @@
 #include "MAVLinkProtocol.h"
 #include "MissionCommandTree.h"
 #include "MissionManager.h"
+#include "DetectObjectManager/ObjectManager.h"
 #include "MultiVehicleManager.h"
 #include "ParameterManager.h"
 #include "PlanMasterController.h"
@@ -52,6 +53,7 @@
 #include "VideoManager.h"
 #include "VideoSettings.h"
 #include <DeviceInfo.h>
+#include <QtCore/qlogging.h>
 #include <StatusTextHandler.h>
 #include <MAVLinkSigning.h>
 #include "GimbalController.h"
@@ -265,6 +267,10 @@ void Vehicle::_commonInit()
 
     connect(QGCPositionManager::instance(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateDistanceToGCS);
     connect(QGCPositionManager::instance(), &QGCPositionManager::gcsPositionChanged, this, &Vehicle::_updateHomepoint);
+
+    _objectManager = new ObjectManager(this);
+
+    qDebug() << "Created object manager";
 
     _missionManager = new MissionManager(this);
     connect(_missionManager, &MissionManager::error,                    this, &Vehicle::_missionManagerError);
@@ -4085,6 +4091,7 @@ void Vehicle::_createStatusTextHandler()
     (void) connect(m_statusTextHandler, &StatusTextHandler::newFormattedMessage, this, &Vehicle::newFormattedMessage);
     (void) connect(m_statusTextHandler, &StatusTextHandler::textMessageReceived, this, &Vehicle::_textMessageReceived);
     (void) connect(m_statusTextHandler, &StatusTextHandler::newErrorMessage, this, &Vehicle::_errorMessageReceived);
+    (void) connect(m_statusTextHandler, &StatusTextHandler::newObjectDetectReceived, _objectManager, &ObjectManager::handleNewObject);
 }
 
 void Vehicle::_textMessageReceived(MAV_COMPONENT componentid, MAV_SEVERITY severity, QString text, QString description)

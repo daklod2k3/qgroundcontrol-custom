@@ -9,6 +9,7 @@
 
 #include "StatusTextHandler.h"
 #include <QGCLoggingCategory.h>
+#include <QtCore/qcontainerfwd.h>
 #include <QtCore/qdebug.h>
 #include <QtCore/qlogging.h>
 
@@ -342,9 +343,8 @@ void StatusTextHandler::_chunkedStatusTextCompleted(MAV_COMPONENT compId)
 
 
     if (messageText.startsWith("#forward_cmess")){
-        qDebug() << "Chunked status text:" << messageText;
-        messageText = messageText.replace("#forward_cmess,", "");
-        emit textMessageReceived(compId, MAV_SEVERITY_INFO, messageText, "");
+        emit newObjectDetectReceived(messageText);
+        emit textMessageReceived(compId, severity, messageText, "");
         return;
     }
 

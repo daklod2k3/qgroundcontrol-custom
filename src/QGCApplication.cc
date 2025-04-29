@@ -33,6 +33,7 @@
 #include <QtQuickControls2/QQuickStyle>
 
 #include <QtCore/private/qthread_p.h>
+#include <QtQml/qqml.h>
 
 #include "AppMessages.h"
 #include "AudioOutput.h"
@@ -52,6 +53,7 @@
 #include "MAVLinkConsoleController.h"
 #include "MAVLinkProtocol.h"
 #include "MissionManager.h"
+#include "ObjectManager.h"
 #include "MultiVehicleManager.h"
 #include "ParameterManager.h"
 #include "PositionManager.h"
@@ -275,6 +277,7 @@ void QGCApplication::init()
     ParameterManager::registerQmlTypes();
     QGroundControlQmlGlobal::registerQmlTypes();
     MissionManager::registerQmlTypes();
+    ObjectManager::registerQmlTypes();
     QGCCameraManager::registerQmlTypes();
     MultiVehicleManager::registerQmlTypes();
     QGCPositionManager::registerQmlTypes();
@@ -313,7 +316,6 @@ void QGCApplication::init()
     qmlRegisterSingletonType<ShapeFileHelper>("QGroundControl.ShapeFileHelper", 1, 0, "ShapeFileHelper", shapeFileHelperSingletonFactory);
 
     qmlRegisterSingletonType<QGCMAVLink>("MAVLink", 1, 0, "MAVLink", mavlinkSingletonFactory);
-
 
     // Although this should really be in _initForNormalAppBoot putting it here allowws us to create unit tests which pop up more easily
     if(QFontDatabase::addApplicationFont(":/fonts/opensans") < 0) {

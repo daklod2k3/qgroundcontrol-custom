@@ -22,6 +22,14 @@ import QGroundControl.UTMSP
 Item {
     id: _root
 
+    property var    _planMasterController:              planMasterController
+    property var    _missionController:                 _planMasterController.missionController
+
+    readonly property real  _toolsMargin:               ScreenTools.defaultFontPixelWidth * 0.75
+    readonly property real  _rightPanelWidth:           Math.min(width / 3, ScreenTools.defaultFontPixelWidth * 30)
+
+
+
     DetectViewToolBar {
         id:                     planToolBar
     }
@@ -118,6 +126,41 @@ Item {
             //     }
             // }
 
+            Repeater {
+                model: _objectManager.visualItems
+                delegate: ObjectItemIndicator {
+                }
+            }
+
+
+            /// Test item view in map 
+            // MapQuickItem {
+            //     anchorPoint.x:  sourceItem.width / 2
+            //     anchorPoint.y:  sourceItem.height / 2
+            //     coordinate:     QtPositioning.coordinate(10.701027,106.721565)
+
+            //     sourceItem: Image {
+            //         id:             mapItemImage
+            //         source:         "/qmlimages/FireIcon.svg"
+            //         mipmap:         true
+            //         antialiasing:   true
+            //         fillMode:       Image.PreserveAspectFit
+            //         height:         ScreenTools.defaultFontPixelHeight * (10)
+            //         sourceSize.height: height
+            //         transform: Rotation {
+            //             origin.x:       mapItemImage.width  / 2
+            //             origin.y:       mapItemImage.height / 2
+            //             angle:          0
+            //         }
+            //     }
+            // }
+
+          
+
+
+
+
+
             // Add the vehicles to the map
             MapItemView {
                 model: QGroundControl.multiVehicleManager.vehicles
@@ -129,23 +172,105 @@ Item {
                     z:              QGroundControl.zOrderMapItems - 1
                 }
             }
+        }
 
+        //-----------------------------------------------------------
+        // Right pane for Image view
+        Rectangle {
+            id:                 rightPanel
+            height:             parent.height
+            width:              _rightPanelWidth
+            color:              qgcPal.window
+            opacity:            0.2
+            anchors.bottom:     parent.bottom
+            anchors.right:      parent.right
+            anchors.rightMargin: _toolsMargin
+        }
 
-            Connections {
-                target: utmspEditor
-                function onResetGeofencePolygonTriggered() {
-                    resetTimer.start()
+        // Bottom panel
+        Rectangle {
+            id:         itemContainer
+            radius:     ScreenTools.defaultFontPixelWidth * 0.5
+            color:      qgcPal.window
+            opacity:    0.80
+            clip:       true
+
+            anchors.margins:    _toolsMargin
+            anchors.leftMargin: 0
+            anchors.left:       parent.left
+            anchors.right:      rightPanel.left
+            anchors.bottom:     parent.bottom
+
+            height:             ScreenTools.defaultFontPixelHeight * 15
+
+            ColumnLayout {
+                anchors.fill: parent
+                anchors.margins: ScreenTools.defaultFontPixelHeight / 2
+                
+                QGCLabel {
+                    text: qsTr("Object Items")
+                    font.pointSize: ScreenTools.mediumFontPointSize
+                    Layout.fillWidth: true
+                }
+                
+                QGCButton {
+                    text: qsTr("Add Object")
+                    Layout.fillWidth: true
+                    onClicked: {
+                        // Add a new object at the current map center
+                        var coordinate = QGroundControl.flightMapPosition
+                        objectItemListModel.appendItem("Object " + (objectItemListModel.count + 1), 
+                                                    coordinate.latitude, 
+                                                    coordinate.longitude, 
+                                                    coordinate.altitude)
+                    }
+                }
+                
+                ListView {
+                    id: objectListView
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    clip: true
+                    model: objectItemListModel
+                    
+                    delegate: Rectangle {
+                        width: objectListView.width
+                        height: ScreenTools.defaultFontPixelHeight * 2.5
+                        color: model.isCurrentItem ? qgcPal.buttonHighlight : qgcPal.windowShade
+                        
+                        MouseArea {
+                            anchors.fill: parent
+                            onClicked: objectItemListModel.currentIndex = index
+                        }
+                        
+                        RowLayout {
+                            anchors.fill: parent
+                            anchors.margins: ScreenTools.defaultFontPixelWidth
+                            
+                            QGCLabel {
+                                text: model.sequenceNumber
+                                width: ScreenTools.defaultFontPixelWidth * 3
+                            }
+                            
+                            QGCLabel {
+                                text: model.name
+                                Layout.fillWidth: true
+                            }
+                            
+                            QGCLabel {
+                                text: model.coordinate.latitude.toFixed(6) + ", " + model.coordinate.longitude.toFixed(6)
+                                Layout.fillWidth: true
+                            }
+                            
+                            QGCButton {
+                                text: qsTr("Delete")
+                                onClicked: objectItemListModel.removeItem(index)
+                            }
+                        }
+                    }
                 }
             }
-            Timer {
-                id: resetTimer
-                interval: 2500
-                running: false
-                repeat: false
-                onTriggered: {
-                    _resetGeofencePolygon = true
-                }
-            }
+
         }
     }
 

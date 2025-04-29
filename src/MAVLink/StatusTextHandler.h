@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QtCore/qobject.h>
 #include <QtCore/QList>
 #include <QtCore/QObject>
 #include <QtCore/QLoggingCategory>
@@ -85,6 +86,7 @@ signals:
     void messageCountChanged(uint32_t newCount);
     void messageTypeChanged();
     void newErrorMessage(QString message);
+    void newObjectDetectReceived(QString& text);
 
 private slots:
     void _chunkedStatusTextTimeout();

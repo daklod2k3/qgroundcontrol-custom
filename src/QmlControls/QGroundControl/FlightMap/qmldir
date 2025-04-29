@@ -32,3 +32,6 @@ QGCMapPolygonVisuals        1.0 QGCMapPolygonVisuals.qml
 QGCMapPolylineVisuals       1.0 QGCMapPolylineVisuals.qml
 SplitIndicator              1.0 SplitIndicator.qml
 VehicleMapItem              1.0 VehicleMapItem.qml
+ObjectMapItems              1.0 ObjectMapItems.qml
+ObjectItemIndicator      1.0 ObjectItemIndicator.qml
+ObjectItem                  1.0 ObjectItem.qml

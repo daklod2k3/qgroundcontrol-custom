@@ -143,6 +143,7 @@
         <file alias="pipResize.svg">src/FlightMap/Images/pipResize.svg</file>
         <file alias="Plan.svg">src/UI/toolbar/Images/Plan.svg</file>
         <file alias="ObjectDetect.svg">src/UI/toolbar/Images/ObjectDetect.svg</file>
+        <file alias="FireIcon.svg">src/DetectView/Images/FireIcon.png</file>
         <file alias="PlanCreator/BlankPlanCreator.png">src/MissionManager/BlankPlanCreator.png</file>
         <file alias="PlanCreator/CorridorScanPlanCreator.png">src/MissionManager/CorridorScanPlanCreator.png</file>
         <file alias="PlanCreator/StructureScanPlanCreator.png">src/MissionManager/StructureScanPlanCreator.png</file>

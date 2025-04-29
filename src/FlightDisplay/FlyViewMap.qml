@@ -326,6 +326,17 @@ FlightMap {
         }
     }
 
+    Repeater {
+        model: QGroundControl.multiVehicleManager.vehicles
+
+        ObjectMapItems {
+            map: _root
+            vehicle: _vehicle
+            property var _vehicle: object
+        }
+    }
+
+
     // Allow custom builds to add map items
     CustomMapItems {
         map:            _root

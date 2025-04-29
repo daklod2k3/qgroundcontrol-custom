@@ -9,6 +9,7 @@
 
 #pragma once
 
+#include <QtCore/qtmetamacros.h>
 #include <QtCore/QElapsedTimer>
 #include <QtCore/QObject>
 #include <QtCore/QSharedPointer>
@@ -61,6 +62,7 @@ class Joystick;
 class LinkInterface;
 class MAVLinkLogManager;
 class MissionManager;
+class ObjectManager;
 class ParameterManager;
 class QGCCameraManager;
 class RallyPointManager;
@@ -87,6 +89,7 @@ class ParsedEvent;
 
 Q_DECLARE_LOGGING_CATEGORY(VehicleLog)
 
+Q_MOC_INCLUDE("ObjectManager.h")
 class Vehicle : public VehicleFactGroup
 {
     Q_OBJECT
@@ -247,6 +250,7 @@ public:
     Q_PROPERTY(VehicleObjectAvoidance*  objectAvoidance     READ objectAvoidance    CONSTANT)
     Q_PROPERTY(Autotune*                autotune            READ autotune           CONSTANT)
     Q_PROPERTY(RemoteIDManager*         remoteIDManager     READ remoteIDManager    CONSTANT)
+    Q_PROPERTY(ObjectManager*           objectManager     READ objectManager    CONSTANT)
 
     // FactGroup object model properties
 
@@ -607,6 +611,7 @@ public:
     QmlObjectListModel* batteries           () { return &_batteryFactGroupListModel; }
 
     MissionManager*                 missionManager      () { return _missionManager; }
+    ObjectManager*                  objectManager       () { return _objectManager; }
     GeoFenceManager*                geoFenceManager     () { return _geoFenceManager; }
     RallyPointManager*              rallyPointManager   () { return _rallyPointManager; }
     ParameterManager*               parameterManager    () { return _parameterManager; }
@@ -1267,6 +1272,7 @@ private:
     TerrainProtocolHandler* _terrainProtocolHandler = nullptr;
 
     MissionManager*                 _missionManager             = nullptr;
+    ObjectManager*                  _objectManager              = nullptr;
     GeoFenceManager*                _geoFenceManager            = nullptr;
     RallyPointManager*              _rallyPointManager          = nullptr;
     VehicleLinkManager*             _vehicleLinkManager         = nullptr;
