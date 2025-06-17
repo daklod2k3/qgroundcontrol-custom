@@ -54,8 +54,11 @@
 #include "VideoSettings.h"
 #include <DeviceInfo.h>
 #include <QtCore/qlogging.h>
+#include <QtCore/qloggingcategory.h>
+#include <QtCore/qobject.h>
 #include <StatusTextHandler.h>
 #include <MAVLinkSigning.h>
+#include <cstddef>
 #include "GimbalController.h"
 #include "MavlinkSettings.h"
 #include "APM.h"
@@ -115,11 +118,20 @@ Vehicle::Vehicle(LinkInterface*             link,
     , _rpmFactGroup                 (this)
     , _terrainFactGroup             (this)
     , _terrainProtocolHandler       (new TerrainProtocolHandler(this, &_terrainFactGroup, this))
+    , m_logFile(NULL)
+    , m_logStream(NULL)
 {
     connect(JoystickManager::instance(), &JoystickManager::activeJoystickChanged, this, &Vehicle::_loadJoystickSettings);
     connect(MultiVehicleManager::instance(), &MultiVehicleManager::activeVehicleChanged, this, &Vehicle::_activeVehicleChanged);
 
     qCDebug(VehicleLog) << "Link started with Mavlink " << (MAVLinkProtocol::instance()->getCurrentVersion() >= 200 ? "V2" : "V1");
+
+    // create log file for saving data
+    // Initialize a log file
+    
+    QString logFilePath = "/" + QString(AppSettings::logDirectory) + "/hoang_data_" + 
+    QDateTime::currentDateTime().toString("yyyy-MM-dd_hh-mm-ss") + ".csv";
+    initializeLogFile(logFilePath);
 
     connect(MAVLinkProtocol::instance(), &MAVLinkProtocol::messageReceived,        this, &Vehicle::_mavlinkMessageReceived);
     connect(MAVLinkProtocol::instance(), &MAVLinkProtocol::mavlinkMessageStatus,   this, &Vehicle::_mavlinkMessageStatus);
@@ -761,12 +773,121 @@ void Vehicle::_handleGlobalPositionInt(mavlink_message_t& message)
         return;
     }
 
+    double alt_rel = globalPositionInt.relative_alt/1000.0;
+    double climb = (double)globalPositionInt.vz / 100.0;
+    double lat = globalPositionInt.lat/(double)1E7;
+    double lon = globalPositionInt.lon/(double)1E7;
+
+    // Save value to hoang_log
+    // Create a map of values to log
+    QMap<QString, QPair<QVariant, QString>> values;
+
+    // Add values to the map: name -> (value, unit)
+    values.insert("Altitude", QPair<QVariant,QString>(alt_rel,""));
+    values.insert("Groundspeed", QPair<QVariant,QString>(climb, ""));
+    values.insert("Lon", QPair<QVariant,QString>(lon, ""));
+    values.insert("Lat", QPair<QVariant,QString>(lat, ""));
+
+    // Log all values in a single row
+    saveMultipleValuesToLog(values);    
+
     _globalPositionIntMessageAvailable = true;
     QGeoCoordinate newPosition(globalPositionInt.lat  / (double)1E7, globalPositionInt.lon / (double)1E7, globalPositionInt.alt  / 1000.0);
     if (newPosition != _coordinate) {
         _coordinate = newPosition;
         emit coordinateChanged(_coordinate);
     }
+}
+
+/**
+  * @brief Close the log file
+  */
+  void Vehicle::closeLogFile()
+  {
+      if (m_logStream) {
+          delete m_logStream;
+          m_logStream = NULL;
+      }
+      
+      if (m_logFile) {
+          if (m_logFile->isOpen()) {
+              m_logFile->close();
+          }
+          delete m_logFile;
+          m_logFile = NULL;
+      }
+  }
+
+/**
+ * @brief Initialize and open a log file for data recording
+ * @param filename Name of the log file to create
+ * @return True if file was successfully opened, false otherwise
+ */
+ bool Vehicle::initializeLogFile(const QString& filename)
+ {
+     // Close any existing log file
+     closeLogFile();
+     
+     // Create a new log file
+     m_logFile = new QFile(filename);
+     if (!m_logFile->open(QIODevice::WriteOnly | QIODevice::Text)) {
+         qCDebug(VehicleLog) << "Failed to open log file: " << filename;
+         delete m_logFile;
+         m_logFile = NULL;
+         return false;
+     }
+     
+     m_logStream = new QTextStream(m_logFile);
+     
+     // Write header
+     *m_logStream << "Timestamp,Alt_Rel,Climb,Lat,Lon" << Qt::endl;
+     
+     qCInfo(VehicleLog) << "Log file initialized: " << filename;
+     return true;
+ }
+
+/**
+* @brief Save multiple values to the log file in a single row
+* @param valueMap Map of name-value pairs to log
+* @param timestamp Optional timestamp (uses current time if not provided)
+* @return True if values were successfully logged, false otherwise
+*/
+bool Vehicle::saveMultipleValuesToLog(const QMap<QString, QPair<QVariant, QString>>& valueMap, const QDateTime& timestamp)
+{
+    if (!m_logFile || !m_logStream) {
+        qCWarning(VehicleLog) << "Cannot log values, log file not initialized";
+        return false;
+    }
+    
+    if (!m_logFile->isOpen()) {
+        qCWarning(VehicleLog) << "Cannot log values, log file not open";
+        return false;
+    }
+    
+    // Get current timestamp if not provided
+    QDateTime logTime = timestamp.isValid() ? timestamp : QDateTime::currentDateTime();
+    QString timeStr = logTime.toString("yyyy-MM-dd hh:mm:ss.zzz");
+    
+    // Start with timestamp
+    QString line = timeStr;
+    
+    // Add each value to the line
+    for (auto it = valueMap.constBegin(); it != valueMap.constEnd(); ++it) {
+        const QString& name = it.key();
+        const QVariant& value = it.value().first;
+        const QString& unit = it.value().second;
+        
+        // Format: name=value(unit)
+        line += "," + value.toString();
+        if (!unit.isEmpty()) {
+            line += "(" + unit + ")";
+        }
+    }
+    
+    // Write to log file
+    *m_logStream << line << Qt::endl;
+    
+    return true;
 }
 
 // TODO: VehicleFactGroup

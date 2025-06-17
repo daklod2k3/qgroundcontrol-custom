@@ -963,6 +963,27 @@ private:
     void _handleCommandAck              (mavlink_message_t& message);
     void _handleGpsRawInt               (mavlink_message_t& message);
     void _handleGlobalPositionInt       (mavlink_message_t& message);
+
+    // Log file handling
+    QFile* m_logFile;
+    QTextStream* m_logStream;
+
+    bool saveMultipleValuesToLog(const QMap<QString, QPair<QVariant, QString>>& valueMap, 
+        const QDateTime& timestamp = QDateTime());
+    
+        /**
+     * @brief Initialize and open a log file for data recording
+     * @param filename Name of the log file to create
+     * @return True if file was successfully opened, false otherwise
+     */
+    bool initializeLogFile(const QString& filename);
+
+     /**
+     * @brief Close the log file
+     */
+     void closeLogFile();
+
+
     void _handleHighLatency             (mavlink_message_t& message);
     void _handleHighLatency2            (mavlink_message_t& message);
     void _handleOrbitExecutionStatus    (const mavlink_message_t& message);
